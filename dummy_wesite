@@ -1,1 +1,11 @@
-
+step 1: open the killer coda
+  https://killercoda.com/playgrounds/scenario/ubuntu
+step 2 : update apt and install ngx serve
+  sudo apt update 
+  sudo apt install nginx 
+step 3 : create a new directory name as you want
+step 4 : clone any repository from
+  https://github.com/topics/static-website?l=html&o=asc&s=stars
+step 5 : copy the clone directory to /var/www/html
+  cp -r /root/rahul/Personal-website/*   /var/www/html
+step 6 : run the nginx server 
