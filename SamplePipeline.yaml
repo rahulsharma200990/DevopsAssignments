@@ -1,0 +1,79 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+name: Terraform_Pipeline_multistage
+
+trigger:
+- main
+
+pool: Default
+
+stages:
+  - stage: TerraformInitPlan
+    displayName: TerraformInitPlan
+    jobs:
+      - job: 
+        displayName: TerraformInstallINITPlan
+        steps:
+        - task: TerraformInstaller@1
+          inputs:
+            terraformVersion: 'latest'
+        
+        - task: TerraformTaskV4@4
+          displayName: Terraform int
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            backendServiceArm: 'portal service connection'
+            backendAzureRmResourceGroupName: 'rg_rahulnew'
+            backendAzureRmStorageAccountName: 'accstorag20111'
+            backendAzureRmContainerName: 'tfstate'
+            backendAzureRmKey: 'rg_rahulnew'
+
+        - task: TerraformTaskV4@4
+          displayName: Terraform plan
+          inputs:
+            provider: 'azurerm'
+            command: 'plan'
+            environmentServiceNameAzureRM: 'portal service connection'
+          
+        
+  - stage: ManualValidatin
+    displayName: Manual Validatin
+    pool: server
+    dependsOn: TerraformInitPlan
+    jobs:
+      - job: 
+        displayName: Manual Validation 
+        timeoutInMinutes: 60
+        steps:
+         - task: ManualValidation@1
+           inputs:
+             notifyUsers: 'rahulsharma200990@gmail.com'
+             instructions: 'please approve'
+
+  - stage: TerraformApply
+    dependsOn: ManualValidatin
+    displayName: Terraform Apply
+    jobs:
+      - job: 
+        steps:
+          - task: TerraformTaskV4@4
+            displayName: Terraform int
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              backendServiceArm: 'portal service connection'
+              backendAzureRmResourceGroupName: 'rg_rahulnew'
+              backendAzureRmStorageAccountName: 'accstorag20111'
+              backendAzureRmContainerName: 'tfstate'
+              backendAzureRmKey: 'rg_rahulnew'
+          
+          - task: TerraformTaskV4@4
+            inputs:
+              provider: 'azurerm'
+              command: 'apply'
+              environmentServiceNameAzureRM: 'portal service connection'
+
